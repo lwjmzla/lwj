@@ -8,6 +8,8 @@ const LwjLib = require('lwj-lib')
  * lwj --version
  * lwj -V
  */
+const argv1 = require('minimist')(process.argv.slice(3));
+console.log(argv1)
 const argv = require('process').argv
 console.log(argv)
 const command = argv[2]
