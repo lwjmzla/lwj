@@ -46,16 +46,27 @@
 const yargs = require('yargs/yargs')
 const {hideBin} = require('yargs/helpers')
 const dedent = require('dedent')
+const log = require("npmlog");
+const pkg = require("../package.json");
+
+const context = {
+  lwjVersion: pkg.version
+}
 
 const argv = hideBin(process.argv) // !hideBin is a shorthand for process.argv.slice(2)
-
+//console.log(process.argv)
+console.log(process.cwd()) // !cwd是指当前node命令执行时所在的文件夹目录；
 console.log(argv)
 
 const cli = yargs(argv);
 cli
   .usage("Usage: lwj <command> [options]")
-  .demandCommand(1, "A command is required. Pass --help to see all available commands and options.")
-  .strict()
+  .demandCommand(1, "A command is required. Pass --help to see all available commands and options.") // !至少一个参数
+  .recommendCommands() // !添加命令行的提示
+  .strict() //!严格模式，会添加命令行的错误提示
+  .fail((msg, err) => {
+    log.error("lwj", msg);
+  })
   .alias("h", "help")
   .alias("v", "version")
   //.wrap(cli.terminalWidth())
@@ -85,6 +96,7 @@ cli
       describe: 'project name',
       alias: 'n'
     })
+    //.group(['name'], 'Dev Options:')
     //.usage("Usage: lwj init [name]")
   }, (argv) => { // !lwj init lwb -d -r npm 根据传入的参数继续干
     console.log(argv)
@@ -98,4 +110,5 @@ cli
       console.log(argv)
     }
   })
-  .argv // !添加默认的--help、 --version的options
+  //.argv // !添加默认的--help、 --version的options
+  .parse(argv, context) // !.parse(argv)和.argv效果一样，但是.parse可以注入参数，得到argv.lwjVersion: '1.0.2'
