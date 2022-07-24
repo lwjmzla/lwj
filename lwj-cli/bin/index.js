@@ -1,114 +1,68 @@
 #!/usr/bin/env node
-// const LwjLib = require('lwj-lib')
-// //console.log('lwj-cli11')
-// // console.log(LwjLib.add(1,2))
-// /**
-//  * !demo
-//  * lwj create --name test
-//  * lwj --version
-//  * lwj -V
-//  */
-// const argv1 = require('minimist')(process.argv.slice(3));
-// console.log(argv1)
-// const argv = require('process').argv
-// console.log(argv)
-// const command = argv[2]
 
-// if(!command) {
-//   console.log('请输入指令')
-//   return
-// }
+const commander = require('commander') // !视频里的版本是 7.3.4  我们用最新版本9.4.0
+const pkg = require('../package.json')
 
-// if (command.startsWith('--') || command.startsWith('-') ) {
-//   const globalOption = command.replace(/-/g,'')
-//   if (globalOption === 'V' || globalOption === 'version') {
-//     console.log('1.0.0')
-//   }
-//   return
-// }
+// !获取commander单例
+//const {program} = commander
+// !实例化一个Command示例
+const program = new commander.Command();
 
-// const options = argv.slice(3)
-// console.log(options)
-// if (options.length) {
-//   let [option, param] = options
-//   option = option.replace('--','')
-//   console.log(option, param)
+program
+  .name(Object.keys(pkg.bin)[0])
+  .usage('<command> [options]')
+  .version(pkg.version)
+  .option('-d, --debug', '是否开启调试模式', false) // !program.debug为false；false为默认值
+  .option('-e, --envName <envName>', '设置环境变量名称')
 
-//   if (LwjLib[command]) {
-//     LwjLib[command]({option, param})
-//   } else {
-//     console.log('无效的指令')
-//   }
-// } else{
-//   console.log('请传入正确的参数')
-// }
+// program.outputHelp()
+//console.log(program.opts())
+//console.log(program.version())
 
-const yargs = require('yargs/yargs')
-const {hideBin} = require('yargs/helpers')
-const dedent = require('dedent')
-const log = require("npmlog");
-const pkg = require("../package.json");
-
-const context = {
-  lwjVersion: pkg.version
-}
-
-const argv = hideBin(process.argv) // !hideBin is a shorthand for process.argv.slice(2)
-//console.log(process.argv)
-console.log(process.cwd()) // !cwd是指当前node命令执行时所在的文件夹目录；
-console.log(argv)
-
-const cli = yargs(argv);
-cli
-  .usage("Usage: lwj <command> [options]")
-  .demandCommand(1, "A command is required. Pass --help to see all available commands and options.") // !至少一个参数
-  .recommendCommands() // !添加命令行的提示
-  .strict() //!严格模式，会添加命令行的错误提示
-  .fail((msg, err) => {
-    log.error("lwj", msg);
+// !command注册命令
+const clone = program.command('clone <source> [destination]')
+clone
+  .description('clone sth')
+  .option('-f, --force', '是否强制克隆')
+  .action((source,destination,cmdObj) => { // !lwj clone 12 asd -f
+    console.log('do clone')
+    console.log(source,destination,cmdObj)
   })
-  .alias("h", "help")
-  .alias("v", "version")
-  //.wrap(cli.terminalWidth())
-  // !epilogue：结尾加文字阐述；dedent：可以控制换行，去除前后空白处
-  .epilogue(dedent`
-    When a command fails, all logs are written to lerna-debug.log in the current working directory.
 
-    For more information, find our manual at https://github.com/lerna/lerna
-  `)
-  .options({ // !Global Options
-    debug: {
-      type: 'boolean',
-      describe: 'debug mode',
-      alias: 'd'
-    }
+// !addCommand 注册子命令，相当于命令的分组功能
+const service = new commander.Command('service');
+service
+  .command('start [port]')
+  .description('start server at xx port')
+  .option('-f, --force', '是否强制克隆')
+  .action((port,cmdObj) => { // !lwj service start 1024
+    console.log('start server at ' + port, cmdObj)
   })
-  .option('registry', { // !Global Options
-    type: 'string',
-    describe: 'Define global registry',
-    alias: 'r'
+
+service
+  .command('stop [port]')
+  .description('stop server at xx port')
+  .action((port) => {
+    console.log('stop server at ' + port)
   })
-  .group(['debug'], 'Dev Options:')
-  .group(['registry'], 'Extra Options:')
-  .command('init [name]', 'Do init a project', (yargs) => {
-    yargs.option('name', { // !lwj init --name a
-      type: 'string',
-      describe: 'project name',
-      alias: 'n'
-    })
-    //.group(['name'], 'Dev Options:')
-    //.usage("Usage: lwj init [name]")
-  }, (argv) => { // !lwj init lwb -d -r npm 根据传入的参数继续干
-    console.log(argv)
+
+program.addCommand(service)
+// !--------------------addCommand 注册子命令结束
+
+// !当.command()有第二个参数时，就意味着使用独立的可执行文件作为子命令。
+//program.command('install [name]', 'install package') // !相当于找 'I:\vue\lwj\lwj-install'的package.json的main入口，找不到就报错
+program.command('install [name]', 'install package',{ // !lwj install axios
+  executableFile: 'lwj-lib', // !executableFile相当于找'I:\vue\lwj\lwj-lib'的package.json的main入口，executableFile相当于指定需要用到的包
+  //isDefault: true, // !命令行直接lwj，就执行'I:\vue\lwj\lwj-lib'，这个会取代.arguments('<cmd> [options]')的功能。
+  //hidden: true // !lwj -h 找不到当前命令
+}) 
+
+
+program
+  .arguments('<cmd> [options]') // !会匹配上面注册的命令以外的其他命令。
+  .description('test')
+  .action((cmd,options) => { // !lwj test 1
+    console.log(cmd, options)
   })
-  .command({
-    command: 'list',
-    aliases: ['ls', 'la', 'll'],
-    describe: 'List local pkgs',
-    builder:(yargs) => {}, // !美化参数
-    handler:(argv) => { // !处理器
-      console.log(argv)
-    }
-  })
-  //.argv // !添加默认的--help、 --version的options
-  .parse(argv, context) // !.parse(argv)和.argv效果一样，但是.parse可以注入参数，得到argv.lwjVersion: '1.0.2'
+
+program.parse(process.argv) // !很重要，这个要放到最后。

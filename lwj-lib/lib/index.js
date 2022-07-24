@@ -1,3 +1,4 @@
+console.log('lwj-lib-----')
 module.exports= {
   add(x,y) {
     return x + y

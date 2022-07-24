@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "commander": "^9.4.0",
     "dedent": "^0.7.0",
     "lwj-lib": "file:../lwj-lib",
     "minimist": "^1.2.6",
