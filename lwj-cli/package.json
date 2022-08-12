@@ -15,10 +15,13 @@
   "dependencies": {
     "commander": "^9.4.0",
     "dedent": "^0.7.0",
+    "inquirer": "^8.2.4",
     "lwj-lib": "file:../lwj-lib",
     "minimist": "^1.2.6",
+    "npminstall": "^6.5.0",
     "npmlog": "^6.0.2",
     "path-exists": "^5.0.0",
+    "user-home": "^3.0.0",
     "yargs": "^17.5.1"
   },
   "devDependencies": {

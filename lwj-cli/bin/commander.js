@@ -22,7 +22,7 @@ program
 //console.log(program.version())
 
 // !command注册命令
-const clone = program.command('clone <source> [destination]')
+const clone = program.command('clone <source> [destination]') // !返回了新的对象
 clone
   .description('clone sth')
   .option('-f, --force', '是否强制克隆')
