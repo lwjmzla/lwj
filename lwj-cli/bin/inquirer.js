@@ -2,15 +2,25 @@ const inquirer = require('inquirer'); // !可交互的命令行
 
 inquirer
   .prompt([
-    // {
-    //   type: 'input', // !password
-    //   name: 'name',
-    //   message: 'your name:',
-    //   default: 'default name',
-    //   validate: (v) => v === 'lwj', // !返回true才通过
-    //   transformer: (v) => 'name:' + v, 
-    //   //filter:  // !会改变最终结果
-    // },
+    {
+      type: 'input', // !password
+      name: 'name',
+      message: 'your name:',
+      //default: 'default name',
+      //validate: (v) => v === 'lwj', // !返回true才通过
+      validate: function (val) {
+        const done = this.async();
+        setTimeout(function() {
+          if (val !== 'lwj') {
+            done('请输入正确的名字');
+            return;
+          }
+          done(null, true);
+        }, 0);
+      },
+      transformer: (v) => 'name:' + v, 
+      //filter:  // !会改变最终结果
+    },
     // {
     //   type: 'number',
     //   name: 'num',
@@ -34,18 +44,18 @@ inquirer
     //     {value: 3,name: 'c'},
     //   ]
     // },
-    {
-      type: 'checkbox', // ! 多选
-      name: 'choice',
-      message: 'your choice:',
-      default: [1], // !index，0开始
-      //choices: ['a', 'b']
-      choices: [
-        {value: 1,name: 'a'},
-        {value: 2,name: 'b'},
-        {value: 3,name: 'c'},
-      ]
-    },
+    // {
+    //   type: 'checkbox', // ! 多选
+    //   name: 'choice',
+    //   message: 'your choice:',
+    //   default: [1], // !index，0开始
+    //   //choices: ['a', 'b']
+    //   choices: [
+    //     {value: 1,name: 'a'},
+    //     {value: 2,name: 'b'},
+    //     {value: 3,name: 'c'},
+    //   ]
+    // },
   ])
   .then((answers) => {
     // Use user feedback for... whatever!!
